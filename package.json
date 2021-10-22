@@ -2,11 +2,14 @@
   "name": "gokart_multiplayer",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run start & vite --port 8080 --host 0.0.0.0",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "start": "NODE_PATH=$NODE_PATH:./src node src/server.mjs"
   },
   "dependencies": {
+    "@geckos.io/client": "^2.1.0",
+    "@geckos.io/server": "^2.1.0",
     "gokart.js": "github:nikolajbaer/gokart.js",
     "preact": "^10.5.13"
   },

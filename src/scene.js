@@ -3,8 +3,16 @@ import { CameraComponent,  ModelComponent, LightComponent  } from "gokart.js/src
 import { BodyComponent } from "gokart.js/src/core/components/physics"
 import { Vector3 } from "gokart.js/src/core/ecs_types"
 import { LocRotComponent } from "gokart.js/src/core/components/position"
+import { NetworkSystem } from "./systems/network"
+import { ActionListenerComponent } from "gokart.js/src/core/components/controls"
 
 export class TestScene extends Physics3dScene {
+
+    register_systems(){
+        super.register_systems()
+        this.world.registerSystem(NetworkSystem)
+    }
+
     init_entities(){
         const g = this.world.createEntity()
         g.addComponent( BodyComponent, {
@@ -28,6 +36,7 @@ export class TestScene extends Physics3dScene {
         const c = this.world.createEntity()
         c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,1),current: true, fov:60})
         c.addComponent(LocRotComponent,{location: new Vector3(5,20,-20)})
+        c.addComponent(ActionListenerComponent)
 
         for(var i=0;i<5;i++){
           const box = this.world.createEntity()
