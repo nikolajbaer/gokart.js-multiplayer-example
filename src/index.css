@@ -1,0 +1,19 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: #fff;
+  font-family: monospace;
+  font-weight: 400;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+div#app {
+  margin: 30px auto;
+  text-align: center;
+  font-size: 14pt;
+}
