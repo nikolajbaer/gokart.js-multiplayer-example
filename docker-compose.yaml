@@ -1,5 +1,6 @@
 version: '3.4'
 
+#NOTE Currently this does not work because somehow WebRTC connection doens't establish
 services:
   node:
     build: .

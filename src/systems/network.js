@@ -1,13 +1,12 @@
 import { System } from "ecsy"
 import { geckos } from "@geckos.io/client"
-import { ActionListenerComponent } from "gokart.js/src/core/components/controls"
+import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 
 export class NetworkSystem extends System {
   init(attributes){
     this.channel = geckos() // default port is 9208
     this.channel.onConnect(error => {
-      console.log("Channel Connected!")
-
+      console.log("Connected!")
       if(error){ console.error(error.message) }
 
       // We may want this to be connected to preact, and just pass the update messages directly here?

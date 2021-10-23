@@ -1,16 +1,21 @@
-import { Physics3dScene } from "gokart.js/src/scene/physics3d"
-import { CameraComponent,  ModelComponent, LightComponent  } from "gokart.js/src/core/components/render"
-import { BodyComponent } from "gokart.js/src/core/components/physics"
-import { Vector3 } from "gokart.js/src/core/ecs_types"
-import { LocRotComponent } from "gokart.js/src/core/components/position"
-import { NetworkSystem } from "./systems/network"
-import { ActionListenerComponent } from "gokart.js/src/core/components/controls"
+//import { Physics2dScene } from "gokart.js/src/scene/physics2d.js"
+import { Physics3dScene } from "gokart.js/src/scene/physics3d.js"
+import { CameraComponent,  ModelComponent, LightComponent  } from "gokart.js/src/core/components/render.js"
+import { BodyComponent } from "gokart.js/src/core/components/physics.js"
+import { Vector3 } from "gokart.js/src/core/ecs_types.js"
+import { LocRotComponent } from "gokart.js/src/core/components/position.js"
+import { NetworkSystem } from "./systems/network.js"
+import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 
 export class TestScene extends Physics3dScene {
 
+    register_network_systems(){
+        this.world.registerSystem(NetworkSystem)
+    }
+
     register_systems(){
         super.register_systems()
-        this.world.registerSystem(NetworkSystem)
+        this.register_network_systems()
     }
 
     init_entities(){

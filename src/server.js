@@ -1,5 +1,7 @@
 import geckos from '@geckos.io/server'
 
+import { TestServerScene } from './server_scene.js'
+
 // https://github.com/geckosio/geckos.io/issues/99#issuecomment-874893807
 const io = geckos({
  portRange: {
@@ -10,7 +12,19 @@ const io = geckos({
 
 io.listen(9208) // default port is 9208
 
+const scene = new TestServerScene()
+scene.init(null,false)
+//scene.start()
+scene.init_entities()
+const UPDATE_INTERVAL = 1000/20
+function loop(){
+  scene.loop()
+}
+
+const updateLoop = setInterval(loop, UPDATE_INTERVAL, scene)
+
 io.onConnection(channel => {
+  console.log("Connection!",channel.id)
   channel.onDisconnect(() => {
     console.log(`${channel.id} got disconnected`)
   })

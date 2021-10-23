@@ -5,8 +5,9 @@
     "dev": "npm run start & vite --port 8080 --host 0.0.0.0",
     "build": "vite build",
     "serve": "vite preview",
-    "start": "NODE_PATH=$NODE_PATH:./src node src/server.mjs"
+    "start": "NODE_PATH=$NODE_PATH:./src nodemon src/server.js"
   },
+  "type":"module",
   "dependencies": {
     "@geckos.io/client": "^2.1.0",
     "@geckos.io/server": "^2.1.0",
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.0.0",
-    "vite": "^2.6.4"
+    "vite": "^2.6.4",
+    "nodemon": "^2.0.14"
   }
 }
