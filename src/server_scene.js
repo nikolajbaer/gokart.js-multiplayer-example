@@ -4,6 +4,7 @@ import { LocRotComponent } from "gokart.js/src/core/components/position.js"
 import { NetworkServerSystem } from "./systems/network_server.js"
 import { Physics3dScene } from "gokart.js/src/scene/physics3d.js"
 import { NetworkSyncComponent } from "./components/network.js"
+import { PhysicsLocRotUpdateSystem } from "gokart.js/src/core/systems/physics"
 
 export class TestServerScene extends Physics3dScene {
   constructor(){
@@ -18,6 +19,7 @@ export class TestServerScene extends Physics3dScene {
   }
 
   register_systems(){
+    this.world.registerSystem(PhysicsLocRotUpdateSystem)
     super.register_systems()
     this.world.registerSystem(NetworkServerSystem)
   }
