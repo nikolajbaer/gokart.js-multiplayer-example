@@ -12,6 +12,10 @@ const io = geckos({
 
 io.listen(9208) // default port is 9208
 
+// Our clients / room.. todo make multiple rooms, with 1 scene per
+const clients = {}
+let room = null
+
 const scene = new TestServerScene()
 scene.init(null,false)
 //scene.start()
@@ -19,15 +23,21 @@ scene.init_entities()
 const UPDATE_INTERVAL = 1000/20
 function loop(){
   scene.loop()
+  io.room(room).emit('update',scene.get_snapshot())
 }
 
 const updateLoop = setInterval(loop, UPDATE_INTERVAL, scene)
 
 io.onConnection(channel => {
-  console.log("Connection!",channel.id)
+  console.log("Connection!",channel.id," in room ",channel.roomId)
+  if(!room){ room = channel.roomId }
+
   channel.onDisconnect(() => {
     console.log(`${channel.id} got disconnected`)
   })
+
+  // TODO differentiate init with maybe loader instructions for meshes
+  channel.emit('init',scene.get_snapshot())
 
   channel.on('chat message', data => {
     console.log(`got ${data} from "chat message"`)

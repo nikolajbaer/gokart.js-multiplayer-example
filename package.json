@@ -7,10 +7,11 @@
     "serve": "vite preview",
     "start": "NODE_PATH=$NODE_PATH:./src nodemon src/server.js"
   },
-  "type":"module",
+  "type": "module",
   "dependencies": {
     "@geckos.io/client": "^2.1.0",
     "@geckos.io/server": "^2.1.0",
+    "@geckos.io/snapshot-interpolation": "^1.0.2",
     "gokart.js": "github:nikolajbaer/gokart.js",
     "preact": "^10.5.13"
   },

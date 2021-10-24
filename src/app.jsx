@@ -1,12 +1,12 @@
 import {useEffect,useState} from 'preact/hooks'
-import { TestScene } from './scene'
+import { TestClientScene } from './scene'
 
 export function App(props) {
   const [status,setStatus] = useState('menu')
   const [scene,setScene] = useState(null)
 
   const start_game = () => {
-    const scene = new TestScene() 
+    const scene = new TestClientScene() 
     setStatus("loading")
     scene.load().then( () => {
       setStatus("playing")
