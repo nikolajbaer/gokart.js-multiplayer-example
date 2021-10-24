@@ -32,8 +32,10 @@ export class TestClientScene extends BaseScene {
         c.addComponent(LocRotComponent,{location: new Vector3(5,20,-20)})
         c.addComponent(ActionListenerComponent)
 
+        /* just to make sure we are rendering..
         const ref = this.world.createEntity()
         ref.addComponent(LocRotComponent,{location: new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
         ref.addComponent(ModelComponent)
+        */
     }
 }

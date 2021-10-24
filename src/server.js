@@ -36,8 +36,11 @@ io.onConnection(channel => {
     console.log(`${channel.id} got disconnected`)
   })
 
-  // TODO differentiate init with maybe loader instructions for meshes
-  channel.emit('init',scene.get_snapshot())
+  scene.add_user(channel.id)
+
+  // When a client connects, we send them a factory of what to 
+  // entities to initialize that are synced, including geometry data
+  channel.emit('init',scene.get_init_data())
 
   channel.on('chat message', data => {
     console.log(`got ${data} from "chat message"`)

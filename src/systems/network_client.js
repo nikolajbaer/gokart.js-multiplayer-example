@@ -2,7 +2,7 @@ import { System } from "ecsy"
 import { geckos } from "@geckos.io/client"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 import { NetworkSyncComponent } from "../components/network"
-import { LocRotComponent } from "gokart.js/src/core/components/position"
+import { LocRotComponent } from "gokart.js/src/core/components/position.js"
 import { Vector3 } from "gokart.js/src/core/ecs_types"
 import { ModelComponent, UpdateFromLocRotComponent } from "gokart.js/src/core/components/render.js"
 import { SnapshotInterpolation } from "@geckos.io/snapshot-interpolation"
@@ -22,39 +22,46 @@ export class NetworkClientSystem extends System {
       })
 
       this.channel.on('init', data => {
-        this.initialize_entities(data.state)
+        this.initialize_entities(data)
       })
 
       this.channel.on('update', data => {
-        console.log("Updating!")
         this.SI.snapshot.add(data)
       })
     })
   }
 
-  initialize_entities(data){
-    console.log("initializing",data)
-    data.forEach( d => {
+  initialize_entities(server_entities){
+    console.log("initializing",server_entities)
+    server_entities.forEach( d => {
       const e = this.world.createEntity()
+      e.name = d.name
       e.addComponent(NetworkSyncComponent,{id:d.id}) 
-      e.addComponent(LocRotComponent,{location:new Vector3(d.x,d.y,d.z),rotation:new Vector3(d.rx,d.ry,d.rz)})
+      e.addComponent(LocRotComponent,{
+        location:new Vector3(d.x,d.y,d.z),
+        rotation:new Vector3(d.rx,d.ry,d.rz)
+      })
       e.addComponent(UpdateFromLocRotComponent)
-      e.addComponent(ModelComponent)
+      e.addComponent(ModelComponent,{
+        geometry: d.geom,
+        material: d.mtl,
+        scale: new Vector3(d.sx,d.sy,d.sz),
+        cast_shadow: d.cshdw,
+        receive_shadow: d.rshdw,
+      })
     })
   }
 
   execute(delta,time){
     this.queries.action_listeners.results.forEach( e => {
       const actions = e.getComponent(ActionListenerComponent).actions
-      if(actions.up){
-        console.log("emitting message")
-        this.channel.emit('chat message',"UP")
-      }
+      // TODO emit action state?
+      //  this.channel.emit('chat message',"UP")
     })
 
     // Update from snapshot system once we have one
-    if(this.SI.snapshot){
-      const snapshot = this.SI.calcInterpolation('x y')
+    const snapshot = this.SI.calcInterpolation('x y')
+    if(snapshot){
       const { state } = snapshot
 
       // build dict of entities to sync
@@ -65,7 +72,6 @@ export class NetworkClientSystem extends System {
       })
 
       // walk through updated state and update entities
-      console.log(state[1].y)
       state.forEach( snap => {
         let e = null
         if(to_sync[snap.id]){
