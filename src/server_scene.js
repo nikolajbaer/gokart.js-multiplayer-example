@@ -3,28 +3,30 @@ import { Vector3 } from "gokart.js/src/core/ecs_types.js"
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
 import { NetworkServerSystem } from "./systems/network_server.js"
 import { Physics3dScene } from "gokart.js/src/scene/physics3d.js"
-import { NetworkSyncComponent } from "./components/network.js"
+import { NetworkPlayerComponent, NetworkSyncComponent } from "./components/network.js"
 import { PhysicsLocRotUpdateSystem } from "gokart.js/src/core/systems/physics.js"
 import { ModelComponent } from "../gokart.js/src/core/components/render.js"
 import { OnGroundComponent } from "../gokart.js/src/common/components/movement.js"
 
 export class TestServerScene extends Physics3dScene {
-  constructor(){
+  constructor(new_entity_callback){
     super()
     this.elapsed = 0
     this.time_step = 1000/20 // 20 tick server?
+    this.new_entity_callback = new_entity_callback
   }
 
   register_components(){
       super.register_components()
       this.world.registerComponent(NetworkSyncComponent)
       this.world.registerComponent(OnGroundComponent) // NOTE this should not be in common if it is required!
+      this.world.registerComponent(NetworkPlayerComponent)
   }
 
   register_systems(){
     this.world.registerSystem(PhysicsLocRotUpdateSystem)
     super.register_systems()
-    this.world.registerSystem(NetworkServerSystem)
+    this.world.registerSystem(NetworkServerSystem,{new_entity_callback:this.new_entity_callback})
   }
 
   register_ui_systems(){
@@ -57,6 +59,7 @@ export class TestServerScene extends Physics3dScene {
     e.addComponent(ModelComponent,{geometry:"box",material:"yellow",scale:new Vector3(1,2,1)})
     e.addComponent(LocRotComponent,{location:spawn})
     e.addComponent(NetworkSyncComponent,{id:e.id})
+    e.addComponent(NetworkPlayerComponent,{channel: id })
     /*
     e.addComponent(KinematicCharacterComponent,{
       jump_speed: 10,
@@ -67,8 +70,9 @@ export class TestServerScene extends Physics3dScene {
     return e.id
   }
 
-  remove_user(id){
-    console.log("TODO! Remove User")
+  remove_user(channel_id){
+    const nsys = this.world.getSystem(NetworkServerSystem)
+    nsys.remove_user(channel_id)
   }
 
   loop(){

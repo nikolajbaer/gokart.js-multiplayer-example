@@ -16,7 +16,12 @@ io.listen(9208) // default port is 9208
 const clients = {}
 let room = null
 
-const scene = new TestServerScene()
+function on_new_entity(init_data){
+  console.log("Sending new entities:",init_data.length," to ",Object.keys(clients).length," clients")
+  io.room(room).emit('init',init_data)
+}
+
+const scene = new TestServerScene(on_new_entity)
 scene.init(null,false)
 //scene.start()
 scene.init_entities()
@@ -34,6 +39,7 @@ io.onConnection(channel => {
 
   channel.onDisconnect(() => {
     console.log(`${channel.id} got disconnected`)
+    scene.remove_user(channel.id)
   })
 
   scene.add_user(channel.id)

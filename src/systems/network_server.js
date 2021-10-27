@@ -1,63 +1,83 @@
 import { System } from "ecsy"
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
-import { NetworkSyncComponent } from "../components/network.js"
+import { NetworkPlayerComponent, NetworkSyncComponent } from "../components/network.js"
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
 import { ModelComponent } from "../../gokart.js/src/core/components/render.js"
-import { Vector3 } from "../../gokart.js/src/core/ecs_types.js"
-import { KinematicCharacterComponent } from "../../gokart.js/src/core/components/physics.js"
-import { BodyComponent } from "../../gokart.js/src/core/components/physics.js"
 
 export class NetworkServerSystem extends System {
   init(attributes){
     this.SI = new SnapshotInterpolation()
     this.snapshot = null
+    this.new_entity_callback = attributes?attributes.new_entity_callback:null
+  }
+
+  remove_user(channel_id){
+    this.queries.players.results.forEach( e => {
+      console.log("removing entity",e)
+      e.remove()
+    })
   }
 
   get_init_data(){
-    // TODO also sync lights?
-    const init = []
-    this.queries.synced.results.forEach( e => {
-      const model = e.getComponent(ModelComponent)
-      const locrot = e.getComponent(LocRotComponent)
-      init.push({
-        id: e.id ,
-        geom: model.geometry,
-        mtl: model.material,
-        sx: model.scale.x,
-        sy: model.scale.y,
-        sz: model.scale.z,
-        cshdw: model.cast_shadow,
-        rshdw: model.receive_shadow,
-        x: locrot.location.x,
-        y: locrot.location.y,
-        z: locrot.location.z,
-        rx: locrot.rotation.x,
-        ry: locrot.rotation.y,
-        rz: locrot.rotation.z,
-        name: e.name,
-      })
-    })
-    return init
+    return this.queries.synced.results.map( e => this.entity_init_data(e))
+  }
+
+  entity_init_data(e){
+    // TODO also sync lights? Do we want this to be genericized?
+    const model = e.getComponent(ModelComponent)
+    const locrot = e.getComponent(LocRotComponent)
+    return {
+      id: e.id , // server's entity id
+      geom: model.geometry,
+      mtl: model.material,
+      sx: model.scale.x,
+      sy: model.scale.y,
+      sz: model.scale.z,
+      cshdw: model.cast_shadow,
+      rshdw: model.receive_shadow,
+      x: locrot.location.x,
+      y: locrot.location.y,
+      z: locrot.location.z,
+      rx: locrot.rotation.x,
+      ry: locrot.rotation.y,
+      rz: locrot.rotation.z,
+      name: e.name,
+    }
+  }
+
+  get_entity_state(e){
+    const locrot = e.getComponent(LocRotComponent)
+    const result = {
+      id: e.id,
+      x: locrot.location.x,
+      y: locrot.location.y,
+      z: locrot.location.z,
+      rx: locrot.rotation.x,
+      ry: locrot.rotation.y,
+      rz: locrot.rotation.z,
+    }
+    return result
   }
 
   execute(delta,time){
-    const world_state = []
-    this.queries.synced.results.forEach( e => {
-      // probably could be way more efficient
-      const locrot = e.getComponent(LocRotComponent)
-      world_state.push({
-        id: e.id,
-        x: locrot.location.x,
-        y: locrot.location.y,
-        z: locrot.location.z,
-        rx: locrot.rotation.x,
-        ry: locrot.rotation.y,
-        rz: locrot.rotation.z,
-      })
+
+    // Send new entities
+    if(this.new_entity_callback && this.queries.synced.added.length){
+      this.new_entity_callback(this.queries.synced.added.map( e => this.entity_init_data(e) ))
+    }
+
+    const world_state = this.queries.synced.results.map( e => this.get_entity_state(e))
+
+    // For any recently removed, we want to send through a remove flag
+    this.queries.players.removed.forEach( e => {
+      // CONSIDER what if user misses this event? How do we ensure they are getting removals?
+      world_state.push({id:e.id,removed:true})
     })
+
     const snapshot = this.SI.snapshot.create(world_state)
     this.SI.vault.add(snapshot)
     this.snapshot = snapshot
+  
   }
 }
 
@@ -66,5 +86,15 @@ export class NetworkServerSystem extends System {
 NetworkServerSystem.queries = {
   synced: {
     components: [NetworkSyncComponent,LocRotComponent,ModelComponent],
+    listen: {
+      added: true,
+      removed: true,
+    }
   },
+  players: {
+    components: [NetworkPlayerComponent],
+    listen: {
+      removed: true
+    }
+  }
 }

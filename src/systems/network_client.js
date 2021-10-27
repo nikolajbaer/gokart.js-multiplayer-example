@@ -29,11 +29,18 @@ export class NetworkClientSystem extends System {
         this.SI.snapshot.add(data)
       })
     })
+
+    // Map containing server Ids we currently sync
+    // to efficiently prevent duplicates
+    this.synced = {}
   }
 
   initialize_entities(server_entities){
     console.log("initializing",server_entities)
+
     server_entities.forEach( d => {
+      if(this.synced[d.id]){ return } // don't duplicate
+
       const e = this.world.createEntity()
       e.name = d.name
       e.addComponent(NetworkSyncComponent,{id:d.id}) 
@@ -59,6 +66,13 @@ export class NetworkClientSystem extends System {
       //  this.channel.emit('chat message',"UP")
     })
 
+    this.queries.network_entities.added.forEach( e => {
+      this.synced[e.getComponent(NetworkSyncComponent).id] = true
+    })
+    this.queries.network_entities.removed.forEach( e => {
+      delete this.synced[e.getComponent(NetworkSyncComponent).id]
+    })
+
     // Update from snapshot system once we have one
     const snapshot = this.SI.calcInterpolation('x y')
     if(snapshot){
@@ -81,6 +95,10 @@ export class NetworkClientSystem extends System {
           console.log("TODO create new entities")
           return
         }
+        if(snap.removed){
+          e.remove()
+          return
+        }
         const lr = e.getMutableComponent(LocRotComponent) 
         lr.location.x = snap.x
         lr.location.y = snap.y
@@ -98,7 +116,11 @@ NetworkClientSystem.queries = {
     components: [ActionListenerComponent]
   },
   network_entities: {
-    components: [NetworkSyncComponent,LocRotComponent]
+    components: [NetworkSyncComponent,LocRotComponent],
+    listen: {
+      added: true,
+      removed: true,
+    }
   }
 }
 
