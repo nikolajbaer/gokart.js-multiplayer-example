@@ -2,7 +2,7 @@ import { System } from "ecsy"
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
 import { NetworkPlayerComponent, NetworkSyncComponent } from "../components/network.js"
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
-import { ModelComponent } from "../../gokart.js/src/core/components/render.js"
+import { ModelComponent } from "gokart.js/src/core/components/render.js"
 
 export class NetworkServerSystem extends System {
   init(attributes){
@@ -12,8 +12,10 @@ export class NetworkServerSystem extends System {
   }
 
   remove_user(channel_id){
-    this.queries.players.results.forEach( e => {
-      console.log("removing entity",e)
+    this.queries.players.results.filter( e => {
+      return e.getComponent(NetworkPlayerComponent).channel == channel_id 
+    }).forEach( e => {
+      console.log("removing user "+channel_id+" entity ",e.id)
       e.remove()
     })
   }
@@ -69,8 +71,9 @@ export class NetworkServerSystem extends System {
     const world_state = this.queries.synced.results.map( e => this.get_entity_state(e))
 
     // For any recently removed, we want to send through a remove flag
-    this.queries.players.removed.forEach( e => {
+    this.queries.synced.removed.forEach( e => {
       // CONSIDER what if user misses this event? How do we ensure they are getting removals?
+      console.log("sending removal update for " + e.id)
       world_state.push({id:e.id,removed:true})
     })
 

@@ -5,8 +5,8 @@ import { NetworkServerSystem } from "./systems/network_server.js"
 import { Physics3dScene } from "gokart.js/src/scene/physics3d.js"
 import { NetworkPlayerComponent, NetworkSyncComponent } from "./components/network.js"
 import { PhysicsLocRotUpdateSystem } from "gokart.js/src/core/systems/physics.js"
-import { ModelComponent } from "../gokart.js/src/core/components/render.js"
-import { OnGroundComponent } from "../gokart.js/src/common/components/movement.js"
+import { ModelComponent } from "gokart.js/src/core/components/render.js"
+import { OnGroundComponent } from "gokart.js/src/common/components/movement.js"
 
 export class TestServerScene extends Physics3dScene {
   constructor(new_entity_callback){
