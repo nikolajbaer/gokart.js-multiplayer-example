@@ -8,7 +8,7 @@ import { PhysicsLocRotUpdateSystem } from "gokart.js/src/core/systems/physics.js
 import { ModelComponent } from "gokart.js/src/core/components/render.js"
 import { MoverComponent, OnGroundComponent } from "gokart.js/src/common/components/movement.js"
 import { MovementSystem } from "gokart.js/src/common/systems/movement.js"
-import { ActionListenerComponent } from "../gokart.js/src/core/components/controls.js"
+import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 
 export class TestServerScene extends Physics3dScene {
   constructor(new_entity_callback){

@@ -3,10 +3,11 @@ import { Vector3 } from "gokart.js/src/core/ecs_types.js"
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
 import { NetworkClientSystem } from "./systems/network_client.js"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
-import { BaseScene } from "gokart.js/src/scene/scene"
 import { NetworkSyncComponent } from "./components/network.js"
+import { Physics3dScene } from "gokart.js/src/scene/physics3d.js"
+//import { BaseScene } from "gokart.js/src/scene/scene.js"
 
-export class TestClientScene extends BaseScene {
+export class TestClientScene extends Physics3dScene {
     register_components(){
         super.register_components()
         this.world.registerComponent(NetworkSyncComponent)

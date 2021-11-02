@@ -1,9 +1,9 @@
 import { System } from "ecsy"
 import { geckos } from "@geckos.io/client"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
-import { NetworkSyncComponent } from "../components/network"
+import { NetworkSyncComponent } from "../components/network.js"
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
-import { Vector3 } from "gokart.js/src/core/ecs_types"
+import { Vector3 } from "gokart.js/src/core/ecs_types.js"
 import { ModelComponent, UpdateFromLocRotComponent } from "gokart.js/src/core/components/render.js"
 import { SnapshotInterpolation } from "@geckos.io/snapshot-interpolation"
 

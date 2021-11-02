@@ -3,7 +3,7 @@ import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
 import { NetworkPlayerComponent, NetworkSyncComponent } from "../components/network.js"
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
 import { ModelComponent } from "gokart.js/src/core/components/render.js"
-import { ActionListenerComponent } from "../../gokart.js/src/core/components/controls.js"
+import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 
 export class NetworkServerSystem extends System {
   init(attributes){
