@@ -60,10 +60,18 @@ export class NetworkClientSystem extends System {
   }
 
   execute(delta,time){
+    // TODO Lage Compensated shot
+    // e.g. https://github.com/geckosio/snapshot-interpolation/blob/master/example/client/index.js#L242
+    // and https://github.com/geckosio/snapshot-interpolation/blob/master/example/server/index.js#L35
+
     this.queries.action_listeners.results.forEach( e => {
       const actions = e.getComponent(ActionListenerComponent).actions
-      // TODO emit action state?
-      //  this.channel.emit('chat message',"UP")
+      this.channel.emit(
+        'actions',
+        actions
+      )
+      // Todo differentiate between reliable and movement
+        // { reliable: true }
     })
 
     this.queries.network_entities.added.forEach( e => {
@@ -74,7 +82,8 @@ export class NetworkClientSystem extends System {
     })
 
     // Update from snapshot system once we have one
-    const snapshot = this.SI.calcInterpolation('x y')
+    // todo make quat contained
+    const snapshot = this.SI.calcInterpolation('x y z rotationInDeg(rx) rotationInDeg(ry) rotationInDeg(rz)')
     if(snapshot){
       const { state } = snapshot
 

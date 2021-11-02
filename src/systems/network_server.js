@@ -3,6 +3,7 @@ import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
 import { NetworkPlayerComponent, NetworkSyncComponent } from "../components/network.js"
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
 import { ModelComponent } from "gokart.js/src/core/components/render.js"
+import { ActionListenerComponent } from "../../gokart.js/src/core/components/controls.js"
 
 export class NetworkServerSystem extends System {
   init(attributes){
@@ -22,6 +23,27 @@ export class NetworkServerSystem extends System {
 
   get_init_data(){
     return this.queries.synced.results.map( e => this.entity_init_data(e))
+  }
+
+  update_user_actions(channel_id,actions){
+    this.queries.players.results.filter( e=> {
+      return e.getComponent(NetworkPlayerComponent).channel == channel_id
+    }).forEach( e => {
+      const action_listener = e.getMutableComponent(ActionListenerComponent)
+      if(!action_listener.actions){
+        action_listener.actions = {}
+      }
+      const pactions = action_listener.actions
+      Object.keys(actions).forEach( k => {
+        let v = Number(actions[k])
+        if(!isNaN(v)){ // Ensure it is a number
+          if(v > 1){ v = 1 }
+          if(v < -1){ v = -1 }
+          pactions[k] =  v
+        }
+      })
+      //console.log(channel_id,pactions)
+    })
   }
 
   entity_init_data(e){
@@ -95,9 +117,9 @@ NetworkServerSystem.queries = {
     }
   },
   players: {
-    components: [NetworkPlayerComponent],
+    components: [NetworkPlayerComponent,ActionListenerComponent],
     listen: {
       removed: true
     }
-  }
+  },
 }

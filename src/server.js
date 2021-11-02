@@ -48,6 +48,10 @@ io.onConnection(channel => {
   // entities to initialize that are synced, including geometry data
   channel.emit('init',scene.get_init_data())
 
+  channel.on('actions', data => {
+    scene.update_user_actions(channel.id,data)
+  })
+
   channel.on('chat message', data => {
     console.log(`got ${data} from "chat message"`)
     // emit the "chat message" data to all channels in the same room
