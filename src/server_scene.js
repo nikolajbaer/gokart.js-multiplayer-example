@@ -9,6 +9,7 @@ import { ModelComponent } from "gokart.js/src/core/components/render.js"
 import { MoverComponent, OnGroundComponent } from "gokart.js/src/common/components/movement.js"
 import { MovementSystem } from "gokart.js/src/common/systems/movement.js"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
+import { ComponentSerializer } from "./component_serializer.js"
 
 export class TestServerScene extends Physics3dScene {
   constructor(new_entity_callback){
@@ -30,7 +31,10 @@ export class TestServerScene extends Physics3dScene {
     this.world.registerSystem(PhysicsLocRotUpdateSystem)
     this.world.registerSystem(MovementSystem)
     super.register_systems()
-    this.world.registerSystem(NetworkServerSystem,{new_entity_callback:this.new_entity_callback})
+    this.world.registerSystem(NetworkServerSystem,{
+      new_entity_callback:this.new_entity_callback,
+      serializer: new ComponentSerializer()
+    })
   }
 
   register_ui_systems(){
@@ -76,7 +80,7 @@ export class TestServerScene extends Physics3dScene {
     e.addComponent(ModelComponent,{geometry:"box",material:"yellow",scale:new Vector3(1,2,1)})
     e.addComponent(LocRotComponent,{location:spawn})
     e.addComponent(NetworkSyncComponent,{id:e.id})
-    e.addComponent(NetworkPlayerComponent,{channel: id })
+    e.addComponent(NetworkPlayerComponent,{channel: id,name:"" })
     e.addComponent(ActionListenerComponent)
     e.addComponent(MoverComponent)
 

@@ -8,5 +8,6 @@ NetworkSyncComponent.schema = {
 
 export class NetworkPlayerComponent extends SystemStateComponent {}
 NetworkPlayerComponent.schema = {
-  channel: { type: Types.String }
+  channel: { type: Types.String },
+  name: { type: Types.String },
 }

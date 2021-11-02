@@ -5,6 +5,7 @@ import { NetworkClientSystem } from "./systems/network_client.js"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 import { NetworkSyncComponent } from "./components/network.js"
 import { Physics3dScene } from "gokart.js/src/scene/physics3d.js"
+import { ComponentSerializer } from "./component_serializer.js"
 //import { BaseScene } from "gokart.js/src/scene/scene.js"
 
 export class TestClientScene extends Physics3dScene {
@@ -15,7 +16,7 @@ export class TestClientScene extends Physics3dScene {
 
     register_systems(){
         super.register_systems()
-        this.world.registerSystem(NetworkClientSystem)
+        this.world.registerSystem(NetworkClientSystem,{serializer:new ComponentSerializer()})
     }
 
     init_entities(){

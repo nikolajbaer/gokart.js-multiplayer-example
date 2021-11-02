@@ -1,8 +1,6 @@
 import { System } from "ecsy"
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
 import { NetworkPlayerComponent, NetworkSyncComponent } from "../components/network.js"
-import { LocRotComponent } from "gokart.js/src/core/components/position.js"
-import { ModelComponent } from "gokart.js/src/core/components/render.js"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 
 export class NetworkServerSystem extends System {
@@ -10,19 +8,21 @@ export class NetworkServerSystem extends System {
     this.SI = new SnapshotInterpolation()
     this.snapshot = null
     this.new_entity_callback = attributes?attributes.new_entity_callback:null
+    this.serializer = attributes.serializer
   }
 
   remove_user(channel_id){
     this.queries.players.results.filter( e => {
       return e.getComponent(NetworkPlayerComponent).channel == channel_id 
     }).forEach( e => {
-      console.log("removing user "+channel_id+" entity ",e.id)
+      const np = e.getComponent(NetworkPlayerComponent)
+      console.log(`removing user ${np.name}, channel ${np.channel}, entity ${e.id}`)
       e.remove()
     })
   }
 
   get_init_data(){
-    return this.queries.synced.results.map( e => this.entity_init_data(e))
+    return this.queries.synced.results.map( e => this.serializer.get_entity_init(e))
   }
 
   update_user_actions(channel_id,actions){
@@ -46,51 +46,14 @@ export class NetworkServerSystem extends System {
     })
   }
 
-  entity_init_data(e){
-    // TODO also sync lights? Do we want this to be genericized?
-    const model = e.getComponent(ModelComponent)
-    const locrot = e.getComponent(LocRotComponent)
-    return {
-      id: e.id , // server's entity id
-      geom: model.geometry,
-      mtl: model.material,
-      sx: model.scale.x,
-      sy: model.scale.y,
-      sz: model.scale.z,
-      cshdw: model.cast_shadow,
-      rshdw: model.receive_shadow,
-      x: locrot.location.x,
-      y: locrot.location.y,
-      z: locrot.location.z,
-      rx: locrot.rotation.x,
-      ry: locrot.rotation.y,
-      rz: locrot.rotation.z,
-      name: e.name,
-    }
-  }
-
-  get_entity_state(e){
-    const locrot = e.getComponent(LocRotComponent)
-    const result = {
-      id: e.id,
-      x: locrot.location.x,
-      y: locrot.location.y,
-      z: locrot.location.z,
-      rx: locrot.rotation.x,
-      ry: locrot.rotation.y,
-      rz: locrot.rotation.z,
-    }
-    return result
-  }
-
   execute(delta,time){
 
     // Send new entities
     if(this.new_entity_callback && this.queries.synced.added.length){
-      this.new_entity_callback(this.queries.synced.added.map( e => this.entity_init_data(e) ))
+      this.new_entity_callback(this.queries.synced.added.map( e => this.serializer.get_entity_init(e) ))
     }
 
-    const world_state = this.queries.synced.results.map( e => this.get_entity_state(e))
+    const world_state = this.queries.synced.results.map( e => this.serializer.get_entity_state(e))
 
     // For any recently removed, we want to send through a remove flag
     this.queries.synced.removed.forEach( e => {
@@ -110,7 +73,7 @@ export class NetworkServerSystem extends System {
 // server, so that we know what to render on the client
 NetworkServerSystem.queries = {
   synced: {
-    components: [NetworkSyncComponent,LocRotComponent,ModelComponent],
+    components: [NetworkSyncComponent],
     listen: {
       added: true,
       removed: true,

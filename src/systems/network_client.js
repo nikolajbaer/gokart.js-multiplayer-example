@@ -2,9 +2,6 @@ import { System } from "ecsy"
 import { geckos } from "@geckos.io/client"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 import { NetworkSyncComponent } from "../components/network.js"
-import { LocRotComponent } from "gokart.js/src/core/components/position.js"
-import { Vector3 } from "gokart.js/src/core/ecs_types.js"
-import { ModelComponent, UpdateFromLocRotComponent } from "gokart.js/src/core/components/render.js"
 import { SnapshotInterpolation } from "@geckos.io/snapshot-interpolation"
 
 export class NetworkClientSystem extends System {
@@ -12,6 +9,7 @@ export class NetworkClientSystem extends System {
     this.channel = geckos() // default port is 9208
     console.log("Connecting")
     this.SI = new SnapshotInterpolation(20) // TODO get fps from server on init?
+    this.serializer = attributes.serializer
     this.channel.onConnect(error => {
       console.log("Connected!")
       if(error){ console.error(error.message) }
@@ -38,24 +36,10 @@ export class NetworkClientSystem extends System {
   initialize_entities(server_entities){
     console.log("initializing",server_entities)
 
-    server_entities.forEach( d => {
-      if(this.synced[d.id]){ return } // don't duplicate
-
+    server_entities.forEach( data => {
+      if(this.synced[data.id]){ return } // don't duplicate
       const e = this.world.createEntity()
-      e.name = d.name
-      e.addComponent(NetworkSyncComponent,{id:d.id}) 
-      e.addComponent(LocRotComponent,{
-        location:new Vector3(d.x,d.y,d.z),
-        rotation:new Vector3(d.rx,d.ry,d.rz)
-      })
-      e.addComponent(UpdateFromLocRotComponent)
-      e.addComponent(ModelComponent,{
-        geometry: d.geom,
-        material: d.mtl,
-        scale: new Vector3(d.sx,d.sy,d.sz),
-        cast_shadow: d.cshdw,
-        receive_shadow: d.rshdw,
-      })
+      this.serializer.process_entity_init(data,e)
     })
   }
 
@@ -108,13 +92,7 @@ export class NetworkClientSystem extends System {
           e.remove()
           return
         }
-        const lr = e.getMutableComponent(LocRotComponent) 
-        lr.location.x = snap.x
-        lr.location.y = snap.y
-        lr.location.z = snap.z
-        lr.rotation.x = snap.rx
-        lr.rotation.y = snap.ry
-        lr.rotation.z = snap.rz
+        this.serializer.process_entity_update(e,snap)
       })
     }
   }
@@ -125,7 +103,7 @@ NetworkClientSystem.queries = {
     components: [ActionListenerComponent]
   },
   network_entities: {
-    components: [NetworkSyncComponent,LocRotComponent],
+    components: [NetworkSyncComponent],
     listen: {
       added: true,
       removed: true,

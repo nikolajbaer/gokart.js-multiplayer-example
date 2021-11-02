@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'preact/hooks'
-import { TestClientScene } from './scene.js'
+import { TestClientScene } from './client_scene.js'
 
 export function App(props) {
   const [status,setStatus] = useState('menu')
