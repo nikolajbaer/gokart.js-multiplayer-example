@@ -5,7 +5,7 @@
     "dev": "npm run start & vite --port 8080 --host 0.0.0.0",
     "build": "vite build",
     "serve": "vite preview",
-    "test": "jest",
+    "test": "ava",
     "start": "NODE_PATH=$NODE_PATH:./src nodemon src/server.js"
   },
   "type": "module",
@@ -18,7 +18,8 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.0.0",
-    "vite": "^2.6.4",
-    "nodemon": "^2.0.14"
+    "ava": "^3.15.0",
+    "nodemon": "^2.0.14",
+    "vite": "^2.6.4"
   }
 }

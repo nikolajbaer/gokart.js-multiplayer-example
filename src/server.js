@@ -2,6 +2,10 @@ import geckos from '@geckos.io/server'
 
 import { TestServerScene } from './server_scene.js'
 
+// How many ticks can you do per second? 
+// Can we identify if we are falling behind?
+const TICK = 20
+
 // https://github.com/geckosio/geckos.io/issues/99#issuecomment-874893807
 const io = geckos({
  portRange: {
@@ -25,7 +29,7 @@ const scene = new TestServerScene(on_new_entity)
 scene.init(null,false)
 //scene.start()
 scene.init_entities()
-const UPDATE_INTERVAL = 1000/20
+const UPDATE_INTERVAL = 1000/TICK
 function loop(){
   scene.loop()
   io.room(room).emit('update',scene.get_snapshot())
