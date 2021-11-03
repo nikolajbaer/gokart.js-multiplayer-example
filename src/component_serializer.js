@@ -53,13 +53,13 @@ export class ComponentSerializer {
         component: ModelComponent,
         serialize: (c) => {
           return {
-            geom: model.geometry,
-            mtl: model.material,
-            sx: model.scale.x,
-            sy: model.scale.y,
-            sz: model.scale.z,
-            cshdw: model.cast_shadow,
-            rshdw: model.receive_shadow,
+            geom: c.geometry,
+            mtl: c.material,
+            sx: c.scale.x,
+            sy: c.scale.y,
+            sz: c.scale.z,
+            cshdw: c.cast_shadow,
+            rshdw: c.receive_shadow,
           }
         },
         deserialize: (d) => {
@@ -101,12 +101,11 @@ export class ComponentSerializer {
       },
       {
         component: NetworkPlayerComponent,
-        serialize: (d) => {
-          d.player_channel = c.channel
-          d.player_name = c.name
-        },
-        deserialize: (d) => {
-          // TODO actually create separate component here for client
+        serialize: (c) => {
+          return {
+            player_channel: c.channel,
+            player_name: c.name
+          }
         }
       }
     ]
