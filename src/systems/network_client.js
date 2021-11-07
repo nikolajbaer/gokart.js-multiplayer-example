@@ -10,6 +10,7 @@ export class NetworkClientSystem extends System {
     console.log("Connecting")
     this.SI = new SnapshotInterpolation(20) // TODO get fps from server on init?
     this.serializer = attributes.serializer
+    this.player_id = null
 
     this.channel.onConnect(error => {
       console.log("Connected!")
@@ -26,6 +27,11 @@ export class NetworkClientSystem extends System {
 
       this.channel.on('update', data => {
         this.SI.snapshot.add(data)
+      })
+
+      this.channel.on('player', data => {
+        this.player_id = data.player_id
+        console.log("My player id is "+this.player_id)
       })
 
       this.channel.emit('spawn',{name:'PlayerName'})

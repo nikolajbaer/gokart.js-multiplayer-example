@@ -64,8 +64,8 @@ io.onConnection(channel => {
   })
 
   channel.on('spawn', data => {
-    const player_data = scene.add_user(channel.id,data)
-    channel.emit('player',player_data,{reliable:true})
+    const player_id = scene.add_user(channel.id,data)
+    channel.emit('player',{player_id:player_id},{reliable:true})
   })
 
   // When a client connects, we send them a factory of what to 
