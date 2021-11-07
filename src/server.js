@@ -24,7 +24,7 @@ let room = null
 
 function on_new_entity(init_data){
   console.log("Sending new entities:",init_data.length," to ",Object.keys(clients).length," clients")
-  io.room(room).emit('init',init_data)
+  io.room(room).emit('init',init_data,{reliable:true})
 }
 
 const scene = new TestServerScene(on_new_entity)
@@ -63,7 +63,10 @@ io.onConnection(channel => {
     scene.remove_user(channel.id)
   })
 
-  scene.add_user(channel.id)
+  channel.on('spawn', data => {
+    const player_data = scene.add_user(channel.id,data)
+    channel.emit('player',player_data,{reliable:true})
+  })
 
   // When a client connects, we send them a factory of what to 
   // entities to initialize that are synced, including geometry data

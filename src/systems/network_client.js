@@ -10,6 +10,7 @@ export class NetworkClientSystem extends System {
     console.log("Connecting")
     this.SI = new SnapshotInterpolation(20) // TODO get fps from server on init?
     this.serializer = attributes.serializer
+
     this.channel.onConnect(error => {
       console.log("Connected!")
       if(error){ console.error(error.message) }
@@ -26,6 +27,9 @@ export class NetworkClientSystem extends System {
       this.channel.on('update', data => {
         this.SI.snapshot.add(data)
       })
+
+      this.channel.emit('spawn',{name:'PlayerName'})
+
     })
 
     // Map containing server Ids we currently sync
@@ -84,8 +88,7 @@ export class NetworkClientSystem extends System {
         if(to_sync[snap.id]){
           e = to_sync[snap.id]
         }else{
-          // TODO create new entity? 
-          console.log("TODO create new entities")
+          // Missing entity, TODO request init
           return
         }
         if(snap.removed){

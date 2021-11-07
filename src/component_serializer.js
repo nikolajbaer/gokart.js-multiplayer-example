@@ -1,5 +1,5 @@
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
-import { ModelComponent } from "gokart.js/src/core/components/render.js"
+import { LightComponent, ModelComponent } from "gokart.js/src/core/components/render.js"
 import { NetworkPlayerComponent, NetworkSyncComponent } from "./components/network.js"
 import { Vector3 } from "gokart.js/src/core/ecs_types.js"
 import { BodyComponent, PhysicsComponent, PhysicsControllerComponent } from "gokart.js/src/core/components/physics.js"
@@ -55,6 +55,27 @@ export class ComponentSerializer {
             scale: new Vector3(d.sx,d.sy,d.sz),
             cast_shadow: d.cshdw,
             receive_shadow: d.rshdw,
+          }
+        }
+      },
+      {
+        component: LightComponent,
+        serialize: (c) => {
+          return {
+            type: c.type,
+            color: c.color,
+            decay: c.decay,
+            intensity: c.intensity,
+            cshdw: c.cast_shadow,
+          }
+        },
+        deserialize: (d) => {
+          return {
+            type: d.type,
+            color: d.color,
+            intensity: d.intensity,
+            decay: d.decay,
+            cast_shadow: d.cshdw,
           }
         }
       },

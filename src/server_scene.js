@@ -5,7 +5,7 @@ import { NetworkServerSystem } from "./systems/network_server.js"
 import { Physics3dScene } from "gokart.js/src/scene/physics3d.js"
 import { NetworkPlayerComponent, NetworkSyncComponent } from "./components/network.js"
 import { PhysicsLocRotUpdateSystem } from "gokart.js/src/core/systems/physics.js"
-import { ModelComponent } from "gokart.js/src/core/components/render.js"
+import { LightComponent, ModelComponent } from "gokart.js/src/core/components/render.js"
 import { MoverComponent, OnGroundComponent } from "gokart.js/src/common/components/movement.js"
 import { MovementSystem } from "gokart.js/src/common/systems/movement.js"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
@@ -54,7 +54,7 @@ export class TestServerScene extends Physics3dScene {
     return null
   }
 
-  add_user(id){
+  add_user(id,data){
     const e = this.world.createEntity()
     const spawn = new Vector3(0,10,0)
     e.addComponent(BodyComponent,{
@@ -80,7 +80,7 @@ export class TestServerScene extends Physics3dScene {
     e.addComponent(ModelComponent,{geometry:"box",material:"yellow",scale:new Vector3(1,2,1)})
     e.addComponent(LocRotComponent,{location:spawn})
     e.addComponent(NetworkSyncComponent,{id:e.id,sync:true})
-    e.addComponent(NetworkPlayerComponent,{channel: id,name:"" })
+    e.addComponent(NetworkPlayerComponent,{channel: id,name:data.name })
     e.addComponent(ActionListenerComponent)
     e.addComponent(MoverComponent)
 
@@ -90,7 +90,7 @@ export class TestServerScene extends Physics3dScene {
       gravity: 20,
     })*/
     e.name = "player_"+id
-    console.log("spawned ",e.name)
+    console.log("spawned ",e.name,data)
     return e.id
   }
 
@@ -119,6 +119,18 @@ export class TestServerScene extends Physics3dScene {
   }
 
   init_entities(){
+
+      // The non-player entities will be loaded from the server on connect
+      const l1 = this.world.createEntity()
+      l1.addComponent(LocRotComponent,{location: new Vector3(0,0,0)})
+      l1.addComponent(LightComponent,{type:"ambient"})
+      l1.addComponent(NetworkSyncComponent)
+
+      const l2 = this.world.createEntity()
+      l2.addComponent(LocRotComponent,{location: new Vector3(10,30,0)})
+      l2.addComponent(LightComponent,{type:"point",cast_shadow:true,intensity:0.8})
+      l2.addComponent(NetworkSyncComponent)
+
       const g = this.world.createEntity()
       g.addComponent( BodyComponent, {
           mass: 0,
