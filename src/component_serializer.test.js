@@ -1,5 +1,5 @@
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
-import { ModelComponent, UpdateFromLocRotComponent } from "gokart.js/src/core/components/render.js"
+import { ModelComponent } from "gokart.js/src/core/components/render.js"
 import { initialize_test_world } from "gokart.js/src/core/testing/game_helpers.js"
 import { PhysicsSystem } from "gokart.js/src/core/systems/physics.js"
 import { ApplyVelocityComponent, BodyComponent, CollisionComponent, KinematicCharacterComponent, PhysicsComponent, PhysicsControllerComponent, SetRotationComponent } from "gokart.js/src/core/components/physics.js"
@@ -26,7 +26,7 @@ test('serialize locrot component', t => {
 })
 
 test('deserialize locrot component', t => {
-  const world = initialize_test_world([],[LocRotComponent,NetworkSyncComponent,UpdateFromLocRotComponent])
+  const world = initialize_test_world([],[LocRotComponent,NetworkSyncComponent])
 
   const e = world.createEntity()
   const serializer = new ComponentSerializer()
@@ -54,35 +54,86 @@ test('deserialize locrot component', t => {
 
 })
 
+test('physics bodies communicate state', t => {
+    const world = initialize_test_world(
+        [{system:PhysicsSystem,attr:{ammo:Ammo}}],
+        [
+            LocRotComponent,
+            BodyComponent,
+            ModelComponent,
+            PhysicsComponent,
+            PhysicsControllerComponent,
+            SetRotationComponent,
+            CollisionComponent,
+            KinematicCharacterComponent,
+            ApplyVelocityComponent,
+            NetworkSyncComponent,
+            OnGroundComponent,
+        ]
+    )
 
-test('get state of entity with locrot component', t => {
-  const world = initialize_test_world([],[LocRotComponent])
-  const serializer = new ComponentSerializer()
-  const e = world.createEntity()
-  e.addComponent(LocRotComponent,{
-    location:new Vector3(1,2,3),
-    rotation: new Vector3(0.1,0.2,0.3)
-  })
-  const init_data = serializer.get_entity_state(e)
-  t.deepEqual(init_data,{id:e.id,x:1,y:2,z:3,rx:0.1,ry:0.2,rz:0.3})
+    // first rigid body 
+    const e = world.createEntity()
+    e.addComponent( BodyComponent, {mass:13} ) 
+    e.addComponent( NetworkSyncComponent,{id:123} )
+    e.addComponent(LocRotComponent,{location:new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
+   
+    const serializer = new ComponentSerializer()
+
+    const data = serializer.get_entity_init(e)
+    t.is(data.c[2].mass, 13)
+ 
+    const psys = world.getSystem(PhysicsSystem)
+    psys.execute(1,1)
+
+    t.true(e.hasComponent(PhysicsComponent))
+    const state = serializer.get_entity_state(e)
+
+    const body = e.getComponent(PhysicsComponent).body
+    const btTransform = body.getWorldTransform() //.getCenterOfMassTransform()
+    const pos = btTransform.getOrigin()
+    t.is(state.x,pos.x())
+    t.is(state.y,pos.y())
+    t.is(state.z,pos.z())
+    t.not(state.y,0) // hopefully we have fallen a bit
+
+    // Now try initializing a new entity
+    const e1 = world.createEntity()
+    serializer.process_entity_init(data,e1)
+    t.true(e1.hasComponent(LocRotComponent))
+    t.true(e1.hasComponent(BodyComponent))
+    psys.execute(1,2)
+    t.true(e1.hasComponent(PhysicsComponent))
+
+    // Now update state
+    state.x = 100
+    state.y = 200
+    state.z = 300
+    serializer.process_entity_update(e,state)
+    const btTransform1 = body.getWorldTransform() //.getCenterOfMassTransform()
+    const pos1 = btTransform1.getOrigin()
+    console.log(state,pos1.x(),pos1.y(),pos1.z())
+    t.is(pos1.x(),100)
+    t.is(pos1.y(),200)
+    t.is(pos1.z(),300)
+
+    // Now with a kinematic character controller 
+    const p = world.createEntity()
+    p.addComponent(BodyComponent, {body_type: BodyComponent.KINEMATIC_CHARACTER}) 
+    p.addComponent(KinematicCharacterComponent)
+    p.addComponent(NetworkSyncComponent,{id:123} )
+    p.addComponent(LocRotComponent,{location:new Vector3(10,0,10),rotation: new Vector3(0,0.5,0)})
+
+    const datap = serializer.get_entity_init(p)
+    // We should convert to kinematic for clients who are not the player
+    //  that way they just interpolate movement driven by character controllers 
+    // on the server. The Exception is the client's own player. TODO how do we instantiate that
+    // on the client?
+    t.is(datap.c[2].body_type, BodyComponent.KINEMATIC)
+    t.is(datap.c[0].ry, 0.5)
+ 
+    psys.execute(1,3)
+    psys.execute(1,4)
+
 })
 
-test('update state of entity with locrot component', t => {
-  const world = initialize_test_world([],[LocRotComponent])
-  const serializer = new ComponentSerializer()
-  const e = world.createEntity()
-  e.addComponent(LocRotComponent,{
-    location:new Vector3(1,2,3),
-    rotation: new Vector3(0.1,0.2,0.3)
-  })
-  e.addComponent(NetworkSyncComponent,{id:123})
-  const data = {id:123,x:4,y:5,z:6,rx:0.4,ry:0.5,rz:0.6}
-  serializer.process_entity_update(e,data)
-  const locrot = e.getComponent(LocRotComponent)
-  t.is(locrot.location.x,data.x)
-  t.is(locrot.location.y,data.y)
-  t.is(locrot.location.z,data.z)
-  t.is(locrot.rotation.x,data.rx)
-  t.is(locrot.rotation.y,data.ry)
-  t.is(locrot.rotation.z,data.rz)
-})

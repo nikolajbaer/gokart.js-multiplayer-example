@@ -67,7 +67,7 @@ export class NetworkClientSystem extends System {
 
     // Update from snapshot system once we have one
     // todo make quat contained
-    const snapshot = this.SI.calcInterpolation('x y z rotationInDeg(rx) rotationInDeg(ry) rotationInDeg(rz)')
+    const snapshot = this.SI.calcInterpolation(this.serializer.interpolation)
     if(snapshot){
       const { state } = snapshot
 

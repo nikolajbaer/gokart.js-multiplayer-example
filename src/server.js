@@ -50,7 +50,7 @@ io.onConnection(channel => {
 
   // When a client connects, we send them a factory of what to 
   // entities to initialize that are synced, including geometry data
-  channel.emit('init',scene.get_init_data())
+  channel.emit('init',scene.get_init_data(),{reliable:true})
 
   channel.on('actions', data => {
     scene.update_user_actions(channel.id,data)
