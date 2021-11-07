@@ -22,7 +22,7 @@ export class NetworkServerSystem extends System {
   }
 
   get_init_data(){
-    return this.queries.synced.results.map( e => this.serializer.get_entity_init(e))
+    return this.queries.synced.results.map( e => this.serializer.get_entity_init(e,e.getComponent(NetworkSyncComponent).sync) )
   }
 
   update_user_actions(channel_id,actions){
@@ -50,10 +50,10 @@ export class NetworkServerSystem extends System {
 
     // Send new entities
     if(this.new_entity_callback && this.queries.synced.added.length){
-      this.new_entity_callback(this.queries.synced.added.map( e => this.serializer.get_entity_init(e) ))
+      this.new_entity_callback(this.queries.synced.added.map( e => this.serializer.get_entity_init(e,e.getComponent(NetworkSyncComponent).sync) ))
     }
 
-    const world_state = this.queries.synced.results.map( e => this.serializer.get_entity_state(e))
+    const world_state = this.queries.synced.results.filter( e => e.getComponent(NetworkSyncComponent).sync ).map( e => this.serializer.get_entity_state(e) )
 
     // For any recently removed, we want to send through a remove flag
     this.queries.synced.removed.forEach( e => {

@@ -54,6 +54,31 @@ test('deserialize locrot component', t => {
 
 })
 
+test('entity init communicates sync status', t => {
+  const world = initialize_test_world([],[LocRotComponent])
+  const serializer = new ComponentSerializer()
+  const e = world.createEntity()
+  e.addComponent(LocRotComponent,{
+    location:new Vector3(1,2,3),
+    rotation: new Vector3(0.1,0.2,0.3)
+  })
+  
+  const init_data = serializer.get_entity_init(e,false)
+  t.false(init_data.sync)
+
+  const init_data1 = serializer.get_entity_init(e,true)
+  t.true(init_data1.sync)
+
+  const e1 = world.createEntity()
+  serializer.process_entity_init(init_data,e1)
+  t.false(e1.getComponent(NetworkSyncComponent).sync)
+
+  const e2 = world.createEntity()
+  serializer.process_entity_init(init_data1,e2)
+  t.true(e2.getComponent(NetworkSyncComponent).sync)
+
+})
+
 test('physics bodies communicate state', t => {
     const world = initialize_test_world(
         [{system:PhysicsSystem,attr:{ammo:Ammo}}],

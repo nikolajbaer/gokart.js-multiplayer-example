@@ -73,7 +73,7 @@ export class NetworkClientSystem extends System {
 
       // build dict of entities to sync
       const to_sync = {}
-      this.queries.network_entities.results.forEach( e => {
+      this.queries.network_entities.results.filter( e => e.getComponent(NetworkSyncComponent).sync ).forEach( e => {
         const ns = e.getComponent(NetworkSyncComponent)
         to_sync[ns.id] = e
       })

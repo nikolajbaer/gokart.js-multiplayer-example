@@ -175,8 +175,8 @@ export class ComponentSerializer {
     return data
   }
 
-  get_entity_init(e){
-    const data = {id:e.id,c:[]}
+  get_entity_init(e,sync){
+    const data = {id:e.id,sync:sync,c:[]}
 
     for(var i=0; i < this.components.length; i++){
       if(!e.hasComponent(this.components[i].component)){ 
@@ -206,7 +206,10 @@ export class ComponentSerializer {
    }
 
   process_entity_init(data,e){
-    e.addComponent(NetworkSyncComponent,{id:data.id}) 
+    e.addComponent(NetworkSyncComponent,{id:data.id,sync:data.sync}) 
+    if(data.sync){
+      console.log("adding sync object ",e.name,data.id)
+    }
 
     for(var i=0; i < this.components.length; i++){
       if(e.hasComponent(this.components[i].component)){ continue } // should we be updating?

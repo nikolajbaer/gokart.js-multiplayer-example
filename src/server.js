@@ -1,10 +1,12 @@
 import geckos from '@geckos.io/server'
+import { performance } from 'perf_hooks'
 
 import { TestServerScene } from './server_scene.js'
 
 // How many ticks can you do per second? 
 // Can we identify if we are falling behind?
 const TICK = 20
+const MAX_CLIENTS = 16 
 
 // https://github.com/geckosio/geckos.io/issues/99#issuecomment-874893807
 const io = geckos({
@@ -30,14 +32,29 @@ scene.init(null,false)
 //scene.start()
 scene.init_entities()
 const UPDATE_INTERVAL = 1000/TICK
+
 function loop(){
+  const t = performance.now()
   scene.loop()
   io.room(room).emit('update',scene.get_snapshot())
+
+  const ft = performance.now() - t
+
+  if(ft > UPDATE_INTERVAL){
+    console.error("Over frame time!",ft,UPDATE_INTERVAL)
+  }
 }
 
 const updateLoop = setInterval(loop, UPDATE_INTERVAL, scene)
 
 io.onConnection(channel => {
+  if(Object.keys(clients).length >= MAX_CLIENTS){
+    console.log("refusing new client, already at max clients ",Object.keys(clients).length,"/",MAX_CLIENTS)
+    channel.emit('too_many_clients',{msg:"Too many clients, try again later"})
+    channel.close()
+    return
+  }
+
   console.log("Connection!",channel.id," in room ",channel.roomId)
   if(!room){ room = channel.roomId }
 

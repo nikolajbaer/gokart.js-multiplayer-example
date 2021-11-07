@@ -79,7 +79,7 @@ export class TestServerScene extends Physics3dScene {
     })
     e.addComponent(ModelComponent,{geometry:"box",material:"yellow",scale:new Vector3(1,2,1)})
     e.addComponent(LocRotComponent,{location:spawn})
-    e.addComponent(NetworkSyncComponent,{id:e.id})
+    e.addComponent(NetworkSyncComponent,{id:e.id,sync:true})
     e.addComponent(NetworkPlayerComponent,{channel: id,name:"" })
     e.addComponent(ActionListenerComponent)
     e.addComponent(MoverComponent)
@@ -128,14 +128,14 @@ export class TestServerScene extends Physics3dScene {
       })
       g.addComponent( ModelComponent, {geometry:"box",material:0x111111,scale: new Vector3(1000,1,1000)})
       g.addComponent( LocRotComponent, { rotation: new Vector3(0,0,0), location: new Vector3(0,-0.5,0) } )
-      g.addComponent(NetworkSyncComponent,{id:g.id})
+      g.addComponent(NetworkSyncComponent,{id:g.id, sync:false})
       g.name = "ground_plane"
 
       for(var i=0;i<5;i++){
         const box = this.world.createEntity()
         box.addComponent(LocRotComponent,{location: new Vector3(0,10+i*3,0),rotation: new Vector3(i*Math.PI/10,0,i*Math.PI/10)})
         box.addComponent(BodyComponent,{mass:1,bounds_type:BodyComponent.BOX_TYPE,bounds: new Vector3(1,1,1)})
-        box.addComponent(NetworkSyncComponent,{id:box.id})
+        box.addComponent(NetworkSyncComponent,{id:box.id,sync:true})
         box.addComponent(ModelComponent)
         box.name = "box"+i
       }
