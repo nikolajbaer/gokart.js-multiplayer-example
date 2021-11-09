@@ -47,9 +47,19 @@ export class NetworkClientSystem extends System {
     console.log("initializing",server_entities)
 
     server_entities.forEach( data => {
-      if(this.synced[data.id]){ return } // don't duplicate
-      const e = this.world.createEntity()
-      this.serializer.process_entity_init(data,e)
+      if(data.id == this.player_id){
+        console.log("received player's entity: ",data.id,(this.synced[data.id])?"already exists":"not yet synced")
+        if(this.synced[data.id]){
+          console.log("race condition, already received player entity, removing to recreate")
+          this.synced[data.id].remove()
+        }
+        const e = this.world.createEntity()
+        this.serializer.process_player_entity_init(data,e)
+      }else{
+        if(this.synced[data.id]){ return } // don't duplicate
+        const e = this.world.createEntity()
+        this.serializer.process_entity_init(data,e)
+      }
     })
   }
 

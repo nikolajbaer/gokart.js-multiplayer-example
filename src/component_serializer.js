@@ -2,9 +2,11 @@ import { LocRotComponent } from "gokart.js/src/core/components/position.js"
 import { LightComponent, ModelComponent } from "gokart.js/src/core/components/render.js"
 import { NetworkPlayerComponent, NetworkSyncComponent } from "./components/network.js"
 import { Vector3 } from "gokart.js/src/core/ecs_types.js"
-import { BodyComponent, PhysicsComponent, PhysicsControllerComponent } from "gokart.js/src/core/components/physics.js"
+import { BodyComponent, KinematicCharacterComponent, PhysicsComponent, PhysicsControllerComponent } from "gokart.js/src/core/components/physics.js"
 import { Ammo } from "gokart.js/src/core/systems/physics.js"
 import * as THREE from "three"
+import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
+import { MoverComponent } from "gokart.js/src/common/components/movement.js"
 
 export class ComponentSerializer {
   constructor(){
@@ -243,5 +245,41 @@ export class ComponentSerializer {
     //e.addComponent(UpdateFromLocRotComponent)
 
     return e
+  }
+
+  // Special Entity init processing for player entity
+  // where we will need different components to wire to 
+  // player input, cameras ,etc.
+  process_player_entity_init(data,e){
+    console.log("adding player object ",e.name,data.id)
+
+    // we still want to sync selectively
+    e.addComponent(NetworkSyncComponent,{id:data.id,sync:data.sync}) 
+
+    // Probably best to unify this in the scene with server_scene?
+    e.addComponent(BodyComponent,{
+      body_type: BodyComponent.KINEMATIC_CHARACTER,
+      bounds_type:BodyComponent.CYLINDER_TYPE,
+      //track_collisions:true,
+      bounds: new Vector3(1,2,1),
+      //material: "player",
+      mass: 0,
+    })
+    e.addComponent(MoverComponent,{
+      speed:0.15,
+      kinematic:true,
+      turner:false,
+      local:true,
+      fly_mode: false,
+      default_run: true,
+    })
+    e.addComponent(KinematicCharacterComponent,{
+      jump_speed: 10,
+      gravity: 20,
+    })
+    e.addComponent(ModelComponent,{geometry:"box",material:"red",scale:new Vector3(1,2,1)})
+    e.addComponent(LocRotComponent,{location:new Vector3(data.x,data.y,data.z)})
+    e.addComponent(ActionListenerComponent)
+    e.addComponent(MoverComponent)
   }
 }
