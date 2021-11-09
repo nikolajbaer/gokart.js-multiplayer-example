@@ -1,5 +1,5 @@
 import { LocRotComponent } from "gokart.js/src/core/components/position.js"
-import { LightComponent, ModelComponent } from "gokart.js/src/core/components/render.js"
+import { LightComponent, ModelComponent, Project2dComponent } from "gokart.js/src/core/components/render.js"
 import { NetworkPlayerComponent, NetworkSyncComponent } from "./components/network.js"
 import { Vector3 } from "gokart.js/src/core/ecs_types.js"
 import { BodyComponent, KinematicCharacterComponent, PhysicsComponent, PhysicsControllerComponent } from "gokart.js/src/core/components/physics.js"
@@ -7,12 +7,20 @@ import { Ammo } from "gokart.js/src/core/systems/physics.js"
 import * as THREE from "three"
 import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
 import { MoverComponent } from "gokart.js/src/common/components/movement.js"
+import { Overlay2dComponent } from "../libgokart.js/src/core/components/overlay2d.js"
 
 export class ComponentSerializer {
   constructor(){
     // How we map components from entities
     this.components = this.create_component_mapping()
     this.interpolation = "x y z q(quat) vx vy vz rotationInDeg(avx) rotationInDeg(avy) rotationInDeg(avz)"
+  }
+
+  component_index(C){
+    for(var i=0;i<this.components.length; i++){
+      if(this.components.component == C){ return i}
+    }
+    return null
   }
 
   // Override this to customize how components get initialized / updated  for Network Synced Entities
@@ -179,6 +187,11 @@ export class ComponentSerializer {
             player_channel: c.channel,
             player_name: c.name
           }
+        },
+        deserialize: (d) => {
+          return {
+            name: d.player_name
+          }
         }
       }
     ]
@@ -281,5 +294,6 @@ export class ComponentSerializer {
     e.addComponent(LocRotComponent,{location:new Vector3(data.x,data.y,data.z)})
     e.addComponent(ActionListenerComponent)
     e.addComponent(MoverComponent)
+    e.addComponent(NetworkPlayerComponent,{name:"You"})
   }
 }

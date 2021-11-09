@@ -26,7 +26,9 @@ export function App(props) {
   return (
     <>
       <div class="menu">{menu}</div>
-      <canvas id="render"></canvas>
+      <div id="container">
+        <canvas id="render"></canvas>
+      </div>
     </>
   )
 }

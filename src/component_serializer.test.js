@@ -100,13 +100,13 @@ test('physics bodies communicate state', t => {
     // first rigid body 
     const e = world.createEntity()
     e.addComponent( BodyComponent, {mass:13} ) 
-    e.addComponent( NetworkSyncComponent,{id:123} )
+    e.addComponent( NetworkSyncComponent,{id:123,sync:true} )
     e.addComponent(LocRotComponent,{location:new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
    
     const serializer = new ComponentSerializer()
 
     const data = serializer.get_entity_init(e)
-    t.is(data.c[2].mass, 13)
+    t.is(data.c[3].mass, 13)
  
     const psys = world.getSystem(PhysicsSystem)
     psys.execute(1,1)
@@ -154,7 +154,7 @@ test('physics bodies communicate state', t => {
     //  that way they just interpolate movement driven by character controllers 
     // on the server. The Exception is the client's own player. TODO how do we instantiate that
     // on the client?
-    t.is(datap.c[2].body_type, BodyComponent.KINEMATIC)
+    t.is(datap.c[3].body_type, BodyComponent.KINEMATIC)
     t.is(datap.c[0].ry, 0.5)
  
     psys.execute(1,3)
