@@ -5,7 +5,7 @@ import { TestServerScene } from './server_scene.js'
 
 // How many ticks can you do per second? 
 // Can we identify if we are falling behind?
-const TICK = 20
+const TICK = 32 
 const MAX_CLIENTS = 16 
 
 // https://github.com/geckosio/geckos.io/issues/99#issuecomment-874893807

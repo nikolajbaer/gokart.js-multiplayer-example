@@ -8,6 +8,10 @@ import { ComponentSerializer } from "./component_serializer.js"
 import { MoverComponent, OnGroundComponent } from "gokart.js/src/common/components/movement.js"
 import { MovementSystem } from "gokart.js/src/common/systems/movement.js"
 import { PlayerLabelSystem } from "./systems/player_labels.js"
+import { OrbitControlsSystem } from "gokart.js/src/common/systems/orbit_controls.js"
+import { OrbitControlComponent } from "gokart.js/src/common/components/orbit_controls.js"
+import { CameraFollowComponent } from "gokart.js/src/common/components/camera_follow.js"
+import { CameraFollowSystem } from "gokart.js/src/common/systems/camera_follow.js"
 
 export class TestClientScene extends Physics3dScene {
     register_components(){
@@ -16,10 +20,13 @@ export class TestClientScene extends Physics3dScene {
         this.world.registerComponent(MoverComponent)
         this.world.registerComponent(OnGroundComponent)
         this.world.registerComponent(NetworkPlayerComponent)
+        this.world.registerComponent(OrbitControlComponent)
+        this.world.registerComponent(CameraFollowComponent)
     }
 
     register_systems(){
         super.register_systems()
+        this.world.registerSystem(CameraFollowSystem)
         this.world.registerSystem(NetworkClientSystem,{serializer:new ComponentSerializer()})
         this.world.registerSystem(MovementSystem)
         this.world.registerSystem(PlayerLabelSystem, {

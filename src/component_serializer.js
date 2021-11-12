@@ -5,9 +5,11 @@ import { Vector3 } from "gokart.js/src/core/ecs_types.js"
 import { BodyComponent, KinematicCharacterComponent, PhysicsComponent, PhysicsControllerComponent } from "gokart.js/src/core/components/physics.js"
 import { Ammo } from "gokart.js/src/core/systems/physics.js"
 import * as THREE from "three"
-import { ActionListenerComponent } from "gokart.js/src/core/components/controls.js"
+import { ActionListenerComponent, MouseListenerComponent, MouseLockComponent } from "gokart.js/src/core/components/controls.js"
 import { MoverComponent } from "gokart.js/src/common/components/movement.js"
-import { Overlay2dComponent } from "../libgokart.js/src/core/components/overlay2d.js"
+import { Overlay2dComponent } from "gokart.js/src/core/components/overlay2d.js"
+import { OrbitControlComponent } from "gokart.js/src/common/components/orbit_controls.js"
+import { CameraFollowComponent } from "gokart.js/src/common/components/camera_follow.js"
 
 export class ComponentSerializer {
   constructor(){
@@ -179,6 +181,15 @@ export class ComponentSerializer {
           )
           d.quat = {x:quat.x,y:quat.y,z:quat.z,w:quat.w}
         },
+        update: (d,c) => {
+          // The only one we should be doing this for is the localized
+          // kinematic character
+          if(!d.quat){ return }
+          const tr = c.ghost.getWorldTransform()
+          tr.setOrigin(new Ammo.btVector3(d.x,d.y,d.z))
+          tr.setRotation(new Ammo.btQuaternion(d.quat.x,d.quat.y,d.quat.z,d.quat.w))
+          c.ghost.setWorldTransform(tr)
+        },
       },
       {
         component: NetworkPlayerComponent,
@@ -265,6 +276,21 @@ export class ComponentSerializer {
   // player input, cameras ,etc.
   process_player_entity_init(data,e){
     console.log("adding player object ",e.name,data.id)
+    this.process_entity_init(data,e)
+    e.addComponent(ActionListenerComponent)
+    e.addComponent(NetworkPlayerComponent,{name:"You"})
+    e.getMutableComponent(ModelComponent).material = "blue"
+    e.addComponent(CameraFollowComponent,{offset: new Vector3(0,20,-20)})
+    /*
+    e.addComponent(OrbitControlComponent,{
+       offset:new Vector3(0,0,-10),
+       min_polar_angle:Math.PI/10,
+       max_polar_angle:Math.PI/2
+    })
+    e.addComponent(MouseListenerComponent)
+    e.addComponent(MouseLockComponent)
+    */
+    return
 
     // we still want to sync selectively
     e.addComponent(NetworkSyncComponent,{id:data.id,sync:data.sync}) 

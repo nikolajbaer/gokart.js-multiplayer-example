@@ -8,7 +8,7 @@ export class NetworkClientSystem extends System {
   init(attributes){
     this.channel = geckos() // default port is 9208
     console.log("Connecting")
-    this.SI = new SnapshotInterpolation(20) // TODO get fps from server on init?
+    this.SI = new SnapshotInterpolation(32) // TODO get fps from server on init?
     this.serializer = attributes.serializer
     this.player_id = null
 

@@ -27,7 +27,7 @@ export class PlayerLabelSystem extends System {
       })
 
       this.queries.players.removed.forEach( e => {
-        const id = e.getComponent(NetworkSyncComponent).id
+        const id = e.getRemovedComponent(NetworkSyncComponent).id
         this.parent.removeChild(this.labels[id])
       })
 
