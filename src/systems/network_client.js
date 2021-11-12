@@ -34,7 +34,9 @@ export class NetworkClientSystem extends System {
         console.log("My player id is "+this.player_id)
       })
 
-      this.channel.emit('spawn',{name:'PlayerName'})
+      this.player_name = attributes?attributes.player_name:null
+      if(!this.player_name){ this.player_name = "Player Name" }
+      this.channel.emit('spawn',{name:this.player_name})
 
     })
 

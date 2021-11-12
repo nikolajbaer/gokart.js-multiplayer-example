@@ -1,12 +1,15 @@
-import {useEffect,useState} from 'preact/hooks'
+import { useState } from 'preact/hooks'
+import { createRef } from 'preact'
 import { TestClientScene } from './client_scene.js'
 
 export function App(props) {
   const [status,setStatus] = useState('menu')
   const [scene,setScene] = useState(null)
+  const nameRef = createRef()
 
   const start_game = () => {
-    const scene = new TestClientScene() 
+    const name = nameRef.current.value || "Player Name"
+    const scene = new TestClientScene(name)
     setStatus("loading")
     scene.load().then( () => {
       setStatus("playing")
@@ -18,7 +21,10 @@ export function App(props) {
 
   let menu = ''
   if(status == "menu"){
-    menu = <button onClick={start_game}>Start!</button>
+    menu = <>
+      <input ref={nameRef} placeholder="Player Name" />
+      <button onClick={start_game}>Start!</button>
+    </>
   }else if(status =="loading"){
     menu = <div>Loading..</div>
   }

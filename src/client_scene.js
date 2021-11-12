@@ -14,6 +14,10 @@ import { CameraFollowComponent } from "gokart.js/src/common/components/camera_fo
 import { CameraFollowSystem } from "gokart.js/src/common/systems/camera_follow.js"
 
 export class TestClientScene extends Physics3dScene {
+    constructor(player_name){
+        super()
+        this.player_name = player_name
+    }
     register_components(){
         super.register_components()
         this.world.registerComponent(NetworkSyncComponent)
@@ -27,7 +31,7 @@ export class TestClientScene extends Physics3dScene {
     register_systems(){
         super.register_systems()
         this.world.registerSystem(CameraFollowSystem)
-        this.world.registerSystem(NetworkClientSystem,{serializer:new ComponentSerializer()})
+        this.world.registerSystem(NetworkClientSystem,{serializer:new ComponentSerializer(),player_name:this.player_name})
         this.world.registerSystem(MovementSystem)
         this.world.registerSystem(PlayerLabelSystem, {
             overlay_element_id: "container",
