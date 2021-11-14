@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "npm run start & vite --port 8080 --host 0.0.0.0",
     "build": "vite build",
-    "serve": "vite preview",
+    "serve": "vite --port 8080 --host 0.0.0.0",
     "test": "ava",
     "start": "NODE_PATH=$NODE_PATH:./src nodemon src/server.js"
   },

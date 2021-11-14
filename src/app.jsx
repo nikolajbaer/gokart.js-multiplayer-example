@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks'
 import { createRef } from 'preact'
 import { TestClientScene } from './client_scene.js'
+import { Conn } from './conn.jsx'
 
 export function App(props) {
   const [status,setStatus] = useState('menu')
@@ -32,6 +33,7 @@ export function App(props) {
   return (
     <>
       <div class="menu">{menu}</div>
+      <Conn></Conn>
       <div id="container">
         <canvas id="render"></canvas>
       </div>
