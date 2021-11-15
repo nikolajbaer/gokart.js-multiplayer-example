@@ -9,9 +9,8 @@ export function Conn(props) {
   const [offer,setOffer] = useState(null)
   const [answer,setAnswer] = useState(null)
   const [chats,addChat] = useReducer((chats,line) => {
-    console.log("adding chat line",line,"to",chats)
-    chats.push(line)
-    return chats
+    console.log("added chat line",line,"to",chats)
+    return [...chats,line]
   },[])
 
   const acceptOfferRef = createRef()
@@ -53,7 +52,9 @@ export function Conn(props) {
   }
 
   const sendChat = () => {
-    conn.send_data(chatRef.current.value)
+    const txt = chatRef.current.value
+    conn.send_data(txt)
+    addChat(txt)
     chatRef.current.value = ''
   }
 
