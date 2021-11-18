@@ -23,7 +23,7 @@ export function Conn(props) {
       setConnState(connState)
     },
     data => {
-      addChat(data) 
+      addChat(data.d) 
     }))
   },[])
 
@@ -53,7 +53,7 @@ export function Conn(props) {
 
   const sendChat = () => {
     const txt = chatRef.current.value
-    conn.send_data(txt)
+    conn.send_data('chat',txt,true)
     addChat(txt)
     chatRef.current.value = ''
   }

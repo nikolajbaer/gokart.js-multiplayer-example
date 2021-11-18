@@ -26,7 +26,7 @@ export class RTCPeer {
 
   handleMessage(event){
     console.log("Got Message",event)
-    this.onDataCallback(event.data)
+    this.onDataCallback(event.data.m,event.data.d)
   }
 
   handleIceCandidate(event){
@@ -62,8 +62,9 @@ export class RTCPeer {
     await this.conn.setRemoteDescription(answer)
   }
 
-  async send_data(data){
-    this.channel.send(data)
+  async send_data(type,data,reliable){
+    // TODO reliable?
+    this.channel.send({m:type,d:data})
   }
 
 }
