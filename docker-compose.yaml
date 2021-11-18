@@ -14,5 +14,5 @@ services:
       - "8080:8080"
       - "9208:9208"
       - "50000-50200:50000-50200/udp"
-    command: "npm run dev"
+    command: "npm run server_dev"
 

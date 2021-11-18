@@ -20,20 +20,30 @@ export function App(props) {
     setScene(scene)
   }
 
+  const start_p2p_game = () => {
+    setStatus("p2p") 
+  }
+
   let menu = ''
   if(status == "menu"){
     menu = <>
       <input ref={nameRef} placeholder="Player Name" />
       <button onClick={start_game}>Start!</button>
+      <br/>
+      <button onClick={start_p2p_game}>P2P Test</button>
     </>
   }else if(status =="loading"){
     menu = <div>Loading..</div>
+  }else if(status == "p2p"){
+    menu = <>
+      <p>Note: not working yet</p>
+      <Conn></Conn>
+    </>
   }
 
   return (
     <>
       <div class="menu">{menu}</div>
-      <Conn></Conn>
       <div id="container">
         <canvas id="render"></canvas>
       </div>
