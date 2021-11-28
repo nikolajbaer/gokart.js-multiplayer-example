@@ -3,7 +3,7 @@ import { createRef } from 'preact'
 
 import { RTCPeer } from './rtc_peer.js'
 
-export function Conn(props) {
+export function P2PClient(props) {
   const [conn,setConn] = useState(null)
   const [connState,setConnState] = useState({conn:'unknown',ice:'unknown'})
   const [offer,setOffer] = useState(null)
@@ -14,7 +14,6 @@ export function Conn(props) {
   },[])
 
   const acceptOfferRef = createRef()
-  const acceptAnswerRef = createRef()
   const chatRef = createRef()
 
   useEffect( () => {
@@ -27,13 +26,6 @@ export function Conn(props) {
     }))
   },[])
 
-  const createOffer = ()  => {
-    conn.create_offer().then( offer => {
-      console.log("Created Offer",offer)
-      setOffer(JSON.stringify(offer))
-    })
-  }
-
   const acceptOffer = () => {
     conn.accept_remote_offer(JSON.parse(acceptOfferRef.current.value))
     console.log("Accepting Offer")
@@ -42,13 +34,9 @@ export function Conn(props) {
   const createAnswer = () => {
     console.log("Creating Answer")
     conn.create_answer(desc => {
+      console.log("Setting Answer",desc)
       setAnswer(JSON.stringify(desc))
     })
-  }
-
-  const acceptAnswer = () => {
-    console.log("Accepting Answer")
-    conn.accept_answer(JSON.parse(acceptAnswerRef.current.value))
   }
 
   const sendChat = () => {
@@ -58,17 +46,17 @@ export function Conn(props) {
     chatRef.current.value = ''
   }
 
-  const chatLines = chats.map( (l,i) => <p key={i}>{l}</p> )
+  const startGame = () => {
+    console.log("TODO")
+  }
+
+  const chatLines = chats.map( (l,i) => <div key={i}>{l}</div> )
 
   return (
     <>
       <div>
         <span>{connState.conn}</span> | 
         <span>{connState.ice}</span>
-      </div>
-      <div>
-        <button onClick={createOffer}>Create Offer</button>
-        <input type="text" value={offer} />
       </div>
       <div>
         <button onClick={acceptOffer}>Accept Offer</button>
@@ -79,15 +67,14 @@ export function Conn(props) {
         <input type="text" value={answer} />
       </div>
       <div>
-        <button onClick={acceptAnswer}>Accept Answer</button>
-        <input type="text" ref={acceptAnswerRef} />
-      </div>
-      <div>
         {chatLines}
       </div>
       <div>
         <input type="text" ref={chatRef} />
         <button onClick={sendChat}>Send</button>
+      </div>
+      <div>
+        <button disabled={connState.conn!="connected"} onClick={startGame}>Join Game</button>
       </div>
     </>
   )

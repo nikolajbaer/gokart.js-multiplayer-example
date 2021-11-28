@@ -26,7 +26,8 @@ export class RTCPeer {
 
   handleMessage(event){
     console.log("Got Message",event)
-    this.onDataCallback(event.data.m,event.data.d)
+    const data = JSON.parse(event.data)
+    this.onDataCallback(data)
   }
 
   handleIceCandidate(event){
@@ -44,6 +45,7 @@ export class RTCPeer {
 
   // JSON parsed offer
   async accept_remote_offer(offer){
+    console.log("accepting",offer)
     await this.conn.setRemoteDescription(offer)
   }
 
@@ -64,7 +66,8 @@ export class RTCPeer {
 
   async send_data(type,data,reliable){
     // TODO reliable?
-    this.channel.send({m:type,d:data})
+    // TODO do non-json data as well
+    this.channel.send(JSON.stringify({m:type,d:data}))
   }
 
 }

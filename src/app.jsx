@@ -1,52 +1,40 @@
 import { useState } from 'preact/hooks'
-import { createRef } from 'preact'
-import { TestClientScene } from './client_scene.js'
-import { Conn } from './conn.jsx'
+import { ServerConnect } from './server_connect.jsx'
+import { P2PHost } from './p2phost.jsx'
+import { P2PClient } from './p2pclient.jsx'
 
 export function App(props) {
   const [status,setStatus] = useState('menu')
   const [scene,setScene] = useState(null)
-  const nameRef = createRef()
+  const [playerName,setPlayerName] = useState('PlayerName')
 
   const start_game = () => {
-    const name = nameRef.current.value || "Player Name"
-    const scene = new TestClientScene(name)
-    setStatus("loading")
-    scene.load().then( () => {
-      setStatus("playing")
-      scene.init("render",false)
-      scene.start()
-    })
-    setScene(scene)
+    setStatus("server")
   }
 
   const start_p2p_game = () => {
-    setStatus("p2p") 
+    setStatus("p2phost") 
   }
 
-  let menu = ''
+  const join_p2p_game = () => {
+    setStatus("p2pclient")
+  }
+
   if(status == "menu"){
-    menu = <>
-      <input ref={nameRef} placeholder="Player Name" />
-      <button onClick={start_game}>Start!</button>
+    return <>
+      <input value={playerName} onInput={(e) => setPlayerName(e.target.value)} />
       <br/>
-      <button onClick={start_p2p_game}>P2P Test</button>
+      <button onClick={start_game}>Join Server Game</button>
+      <br/>
+      <button onClick={start_p2p_game}>Host P2P Game</button>
+      <button onClick={join_p2p_game}>Join P2P Game</button>
     </>
-  }else if(status =="loading"){
-    menu = <div>Loading..</div>
-  }else if(status == "p2p"){
-    menu = <>
-      <p>Note: not working yet</p>
-      <Conn></Conn>
-    </>
+  }else if(status == "server"){
+    return <ServerConnect name={playerName}></ServerConnect>
+  }else if(status == "p2phost"){
+    return <P2PHost name={playerName}></P2PHost>
+  }else if(status == "p2pclient"){
+    return <P2PClient name={playerName}></P2PClient>
   }
 
-  return (
-    <>
-      <div class="menu">{menu}</div>
-      <div id="container">
-        <canvas id="render"></canvas>
-      </div>
-    </>
-  )
 }
